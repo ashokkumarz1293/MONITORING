@@ -136,13 +136,14 @@ var API_URL = 'https://script.google.com/macros/s/AKfycbzRgroBvrZ9NMJOOQbwk9tg_2
 // What each tab shows. "cols" = list columns; "area"/"eng" = filter columns.
 var VIEWS = {
   Commissioning: { title:'Mouza', key:'Mouza', sub:'Location', area:'Sales Area', eng:'Site Engineer',
-    cols:['Mouza','Location','Site (A/B)','RO/KSK','Sales Area','Site Engineer','Commissioning Plan','Status'] },
+    cols:['Mouza','Location','Site (A/B)','Sales Area','Site Engineer','Commissioning Plan','Progress %','Status'] },
   Modernisation: { title:'RO Name', key:'RO Name', sub:'Work Category', area:'RSA', eng:'Site Engineer',
-    cols:['RO Name','RO Code','Work Category','RSA','Contractor','Site Engineer','Scheduled Completion','Status'] }
+    cols:['RO Name','RO Code','Work Category','RSA','Contractor','Site Engineer','Progress %','Status'] }
 };
 var STATUSES = ['YTS','WIP','Completed','On Hold','Dropped'];
 var LONG = ['Location','Remarks','Pendency Reason','IO Description'];   // shown as multi-line boxes
 var PAGE = 150;
+var LOW = 20;   // Progress % below this is shown in red
 
 var S = { token:null, user:null, data:null, tab:'Commissioning', status:'', shown:PAGE, row:null };
 var $ = function(id){ return document.getElementById(id); };
@@ -229,6 +230,7 @@ function draw(){
   $('tb').innerHTML=list.slice(0,S.shown).map(function(r){
     return '<tr data-id="'+esc(r.ID)+'">'+v.cols.map(function(h,i){
       if(h==='Status') return '<td>'+chip(r.Status)+'</td>';
+      if(h==='Progress %'){ var p=parseFloat(r[h]); return '<td style="font-weight:bold;color:'+(isNaN(p)?'var(--mute)':p<LOW?'var(--red)':'var(--green)')+'">'+(isNaN(p)?'—':p+'%')+'</td>'; }
       if(i===0) return '<td class="k">'+esc(r[h]||'—')+'<div class="meta">'+esc(r.ID)+'</div></td>';
       return '<td class="'+(i>1?'wide':'')+'">'+esc(h==='Location'?(r[h]||'').slice(0,70):r[h])+'</td>';
     }).join('')+'</tr>';
@@ -246,6 +248,7 @@ function openPanel(id){
     var val=r[h]||'', ro=(h==='ID'||h==='Updated By'||h==='Updated On');
     var f;
     if(h==='Status') f='<select data-h="Status"><option value=""></option>'+STATUSES.map(function(s){return '<option'+(s===val?' selected':'')+'>'+s+'</option>';}).join('')+'</select>';
+    else if(h==='Progress %') f='<input data-h="Progress %" type="number" min="0" max="100" step="1" value="'+esc(val)+'" placeholder="0–100">';
     else if(LONG.indexOf(h)>=0) f='<textarea data-h="'+esc(h)+'">'+esc(val)+'</textarea>';
     else f='<input data-h="'+esc(h)+'" value="'+esc(val)+'"'+(ro?' readonly class="ro"':'')+'>';
     return '<label>'+esc(h)+'</label>'+f;
