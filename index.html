@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RO-PACE · Begusarai Divisional Office</title>
+<style>
+/* ---------- 1. Colours and basic layout ---------- */
+:root{--navy:#1f3864;--orange:#f37022;--bg:#f3f5f9;--card:#fff;--ink:#1d2433;--mute:#667085;--line:#e3e7ee;
+--green:#2e7d32;--amber:#b26a00;--red:#c00000;--blue:#2f75b5;--grey:#7a828f}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+header{background:var(--navy);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5}
+header .t{flex:1;line-height:1.2}
+header .t b{font-size:17px;display:block}
+header .t small{opacity:.85;font-size:12px}
+header .brand{background:var(--orange);color:#fff;font-weight:bold;border-radius:6px;padding:6px 9px;font-size:13px;letter-spacing:.5px}
+header button{background:transparent;border:1px solid #ffffff66;color:#fff;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer}
+main{max-width:1150px;margin:0 auto;padding:12px 16px 60px}
+.card{background:var(--card);border-radius:10px;box-shadow:0 1px 3px #0001;padding:14px;margin-bottom:12px}
+.hide{display:none!important}
+input,select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;width:100%}
+textarea{min-height:60px}
+label{font-size:12px;color:var(--mute);display:block;margin:8px 0 3px}
+.btn{background:var(--navy);color:#fff;border:0;border-radius:7px;padding:9px 14px;font:inherit;cursor:pointer}
+.btn.o{background:var(--orange)}.btn.g{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.btn:disabled{opacity:.5}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:150px}
+
+/* ---------- 2. Login box ---------- */
+#login{max-width:380px;margin:50px auto}
+#login h2{margin:0 0 4px;color:var(--navy)}
+.err{color:var(--red);font-size:13px;min-height:18px;margin-top:8px}
+
+/* ---------- 3. Tabs, KPI tiles, filters ---------- */
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button{flex:1;padding:10px;border:0;border-radius:8px;background:#fff;color:var(--navy);font:inherit;font-weight:bold;cursor:pointer;box-shadow:0 1px 3px #0001}
+.tabs button.on{background:var(--navy);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px #0001;cursor:pointer;border-top:4px solid var(--grey)}
+.kpi.on{outline:2px solid var(--navy)}
+.kpi .v{font-size:24px;font-weight:bold}.kpi .l{font-size:12px;color:var(--mute)}
+
+/* ---------- 4. Site list ---------- */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;color:var(--mute);border-bottom:2px solid var(--line);padding:8px 6px;white-space:nowrap}
+td{border-bottom:1px solid var(--line);padding:9px 6px;vertical-align:top}
+tbody tr{cursor:pointer}tbody tr:hover{background:#f7f9fc}
+td.k{font-weight:bold;color:var(--navy)}
+.chip{display:inline-block;padding:2px 8px;border-radius:20px;font-size:12px;font-weight:bold;color:#fff;background:var(--grey);white-space:nowrap}
+.s-Completed{background:var(--green)}.s-WIP{background:var(--blue)}.s-YTS{background:var(--amber)}
+.s-Dropped{background:var(--red)}.s-OnHold{background:#7030a0}
+.meta{color:var(--mute);font-size:12px}
+.more{text-align:center;margin-top:10px}
+
+/* ---------- 5. Edit panel (slides in from the right) ---------- */
+#shade{position:fixed;inset:0;background:#0006;z-index:9}
+#panel{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:#fff;z-index:10;display:flex;flex-direction:column;box-shadow:-4px 0 20px #0003}
+#panel .h{background:var(--navy);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px}
+#panel .h b{flex:1}
+#panel .b{flex:1;overflow:auto;padding:4px 16px 16px}
+#panel .f{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center}
+.ro{background:#f5f6f8;color:var(--mute)}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:8px;z-index:20;font-size:14px}
+#loading{position:fixed;top:0;left:0;right:0;height:3px;background:var(--orange);z-index:30;animation:ld 1s linear infinite}
+@keyframes ld{0%{transform:scaleX(0);transform-origin:left}50%{transform:scaleX(1);transform-origin:left}51%{transform-origin:right}100%{transform:scaleX(0);transform-origin:right}}
+@media(max-width:700px){.wide{display:none}}
+</style>
+</head>
+<body>
+<div id="loading" class="hide"></div>
+<header>
+  <span class="brand">RO-PACE</span>
+  <div class="t"><b>Begusarai Divisional Office</b><small>Engineering Department</small></div>
+  <span id="who" class="meta" style="color:#fff"></span>
+  <button id="pinBtn" class="hide">Change PIN</button>
+  <button id="outBtn" class="hide">Log out</button>
+</header>
+
+<main>
+  <!-- LOGIN -->
+  <div id="login" class="card">
+    <h2>Log in</h2>
+    <div class="meta">Commissioning &amp; Modernisation site monitoring</div>
+    <label>E-mail</label><input id="email" type="email" autocomplete="username">
+    <label>PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="current-password">
+    <div style="margin-top:14px"><button class="btn" id="loginBtn" style="width:100%">Log in</button></div>
+    <div class="err" id="loginErr"></div>
+    <div class="meta">Forgot PIN? Ask your RO-PACE admin to reset it.</div>
+  </div>
+
+  <!-- APP -->
+  <div id="app" class="hide">
+    <div class="tabs">
+      <button data-tab="Commissioning" class="on">New Commissioning</button>
+      <button data-tab="Modernisation">Modernisation</button>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="card">
+      <div class="row">
+        <div style="flex:2"><input id="q" placeholder="Search Mouza, location, RO name, IO no…"></div>
+        <div><select id="fArea"></select></div>
+        <div><select id="fEng"></select></div>
+        <div style="flex:0;min-width:auto;display:flex;gap:6px">
+          <button class="btn g" id="csvBtn" title="Download the filtered list">CSV</button>
+          <button class="btn g" id="refBtn" title="Reload from the sheet">↻</button>
+        </div>
+      </div>
+      <div class="meta" id="count" style="margin-top:8px"></div>
+    </div>
+    <div class="card" style="overflow-x:auto">
+      <table><thead id="th"></thead><tbody id="tb"></tbody></table>
+      <div class="more"><button class="btn g hide" id="moreBtn">Show more</button></div>
+    </div>
+  </div>
+</main>
+
+<!-- EDIT PANEL -->
+<div id="shade" class="hide"></div>
+<div id="panel" class="hide">
+  <div class="h"><b id="pTitle"></b><button class="btn g" id="pClose">✕</button></div>
+  <div class="b" id="pBody"></div>
+  <div class="f"><button class="btn o" id="pSave">Save changes</button><span class="meta" id="pMeta"></span></div>
+</div>
+<div id="toast" class="hide"></div>
+
+<script>
+/* =========================================================
+   RO-PACE front end
+   1. API_URL is the Apps Script web-app link (/exec).
+   2. api(fn, args) sends {"fn":..., "args":[...]} to it.
+   3. Everything else just draws the screen.
+   ========================================================= */
+var API_URL = 'https://script.google.com/macros/s/AKfycbzRgroBvrZ9NMJOOQbwk9tg_2iraPgOZLtRPAIbf0JwoGzi8rzo8ue5X7vM0fAWlok/exec';
+
+// What each tab shows. "cols" = list columns; "area"/"eng" = filter columns.
+var VIEWS = {
+  Commissioning: { title:'Mouza', key:'Mouza', sub:'Location', area:'Sales Area', eng:'Site Engineer',
+    cols:['Mouza','Location','Site (A/B)','RO/KSK','Sales Area','Site Engineer','Commissioning Plan','Status'] },
+  Modernisation: { title:'RO Name', key:'RO Name', sub:'Work Category', area:'RSA', eng:'Site Engineer',
+    cols:['RO Name','RO Code','Work Category','RSA','Contractor','Site Engineer','Scheduled Completion','Status'] }
+};
+var STATUSES = ['YTS','WIP','Completed','On Hold','Dropped'];
+var LONG = ['Location','Remarks','Pendency Reason','IO Description'];   // shown as multi-line boxes
+var PAGE = 150;
+
+var S = { token:null, user:null, data:null, tab:'Commissioning', status:'', shown:PAGE, row:null };
+var $ = function(id){ return document.getElementById(id); };
+
+/* ---------- Talking to the backend ---------- */
+function api(fn, args){
+  $('loading').classList.remove('hide');
+  return fetch(API_URL, { method:'POST', redirect:'follow', credentials:'omit',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},   // plain text avoids a CORS pre-check
+      body: JSON.stringify({ fn:fn, args:args || [] }) })
+    .then(function(r){ return r.json(); })
+    .then(function(x){
+      $('loading').classList.add('hide');
+      if (!x.ok) {
+        if (/Session expired/.test(x.error)) logout();
+        throw new Error(x.error);
+      }
+      return x.data;
+    }, function(e){ $('loading').classList.add('hide'); throw e; });
+}
+function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.remove('hide'); clearTimeout(t._h); t._h=setTimeout(function(){t.classList.add('hide');},2600); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function chip(s){ return s ? '<span class="chip s-'+s.replace(/\s/g,'')+'">'+esc(s)+'</span>' : '<span class="meta">—</span>'; }
+
+/* ---------- Login / logout ---------- */
+function login(){
+  var e=$('email').value.trim(), p=$('pin').value.trim();
+  if(!e||!p){ $('loginErr').textContent='Enter e-mail and PIN.'; return; }
+  $('loginBtn').disabled=true; $('loginErr').textContent='';
+  api('login',[e,p]).then(function(u){
+    S.token=u.token; S.user=u;
+    try{ localStorage.setItem('ropace', JSON.stringify(u)); localStorage.setItem('ropace_email', e); }catch(_){}
+    start();
+  }).catch(function(err){ $('loginErr').textContent=err.message; })
+    .then(function(){ $('loginBtn').disabled=false; });
+}
+function logout(){
+  try{ localStorage.removeItem('ropace'); }catch(_){}
+  S.token=null; S.data=null;
+  $('app').classList.add('hide'); $('login').classList.remove('hide');
+  ['who','pinBtn','outBtn'].forEach(function(i){ $(i).classList.add('hide'); });
+  closePanel();
+}
+function start(){
+  $('login').classList.add('hide'); $('app').classList.remove('hide');
+  $('who').textContent=S.user.name; ['who','pinBtn','outBtn'].forEach(function(i){ $(i).classList.remove('hide'); });
+  load();
+}
+function load(){
+  return api('getData',[S.token]).then(function(d){ S.data=d; fillFilters(); draw(); })
+    .catch(function(e){ toast(e.message); });
+}
+
+/* ---------- Drawing the screen ---------- */
+function rows(){ return S.data ? S.data[S.tab].rows : []; }
+function uniq(col){ var m={}; rows().forEach(function(r){ var v=(r[col]||'').trim(); if(v) m[v.toUpperCase()]=m[v.toUpperCase()]||v; });
+  return Object.keys(m).sort().map(function(k){ return m[k]; }); }
+function fillFilters(){
+  var v=VIEWS[S.tab];
+  $('fArea').innerHTML='<option value="">All '+v.area+'s</option>'+uniq(v.area).map(function(x){return '<option>'+esc(x)+'</option>';}).join('');
+  $('fEng').innerHTML='<option value="">All Site Engineers</option>'+uniq(v.eng).map(function(x){return '<option>'+esc(x)+'</option>';}).join('');
+}
+function filtered(ignoreStatus){
+  var v=VIEWS[S.tab], q=$('q').value.trim().toLowerCase(), a=$('fArea').value.toUpperCase(), e=$('fEng').value.toUpperCase();
+  return rows().filter(function(r){
+    if(a && (r[v.area]||'').trim().toUpperCase()!==a) return false;
+    if(e && (r[v.eng]||'').trim().toUpperCase()!==e) return false;
+    if(!ignoreStatus && S.status && (r.Status||'(blank)')!==S.status) return false;
+    if(q){ var hay=Object.keys(r).map(function(k){return r[k];}).join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false; }
+    return true;
+  });
+}
+function draw(){
+  var v=VIEWS[S.tab], base=filtered(true), list=filtered(false);
+  // KPI tiles
+  var c={}; base.forEach(function(r){ var s=r.Status||'(blank)'; c[s]=(c[s]||0)+1; });
+  var tiles=[['','Total',base.length,'var(--navy)']].concat(STATUSES.map(function(s){
+    return [s,s,c[s]||0,{YTS:'#b26a00',WIP:'#2f75b5',Completed:'#2e7d32',Dropped:'#c00000','On Hold':'#7030a0'}[s]];}));
+  if(c['(blank)']) tiles.push(['(blank)','No status',c['(blank)'],'#bbb']);
+  $('kpis').innerHTML=tiles.map(function(t){
+    return '<div class="kpi'+(S.status===t[0]?' on':'')+'" data-s="'+esc(t[0])+'" style="border-top-color:'+t[3]+'"><div class="v">'+t[2]+'</div><div class="l">'+esc(t[1])+'</div></div>';}).join('');
+  // Table
+  $('th').innerHTML='<tr>'+v.cols.map(function(h,i){ return '<th class="'+(i>1&&i<v.cols.length-1?'wide':'')+'">'+esc(h)+'</th>'; }).join('')+'</tr>';
+  $('tb').innerHTML=list.slice(0,S.shown).map(function(r){
+    return '<tr data-id="'+esc(r.ID)+'">'+v.cols.map(function(h,i){
+      if(h==='Status') return '<td>'+chip(r.Status)+'</td>';
+      if(i===0) return '<td class="k">'+esc(r[h]||'—')+'<div class="meta">'+esc(r.ID)+'</div></td>';
+      return '<td class="'+(i>1?'wide':'')+'">'+esc(h==='Location'?(r[h]||'').slice(0,70):r[h])+'</td>';
+    }).join('')+'</tr>';
+  }).join('') || '<tr><td colspan="9" class="meta">No matching sites.</td></tr>';
+  $('count').textContent='Showing '+Math.min(S.shown,list.length)+' of '+list.length+' '+(S.tab==='Commissioning'?'sites':'works')+(S.status?' · status: '+S.status:'');
+  $('moreBtn').classList.toggle('hide', list.length<=S.shown);
+}
+
+/* ---------- Edit panel ---------- */
+function openPanel(id){
+  var r=rows().filter(function(x){return x.ID===id;})[0]; if(!r) return;
+  S.row=r; var v=VIEWS[S.tab], hs=S.data[S.tab].headers;
+  $('pTitle').textContent=(r[v.key]||r.ID)+' · '+r.ID;
+  $('pBody').innerHTML=hs.map(function(h){
+    var val=r[h]||'', ro=(h==='ID'||h==='Updated By'||h==='Updated On');
+    var f;
+    if(h==='Status') f='<select data-h="Status"><option value=""></option>'+STATUSES.map(function(s){return '<option'+(s===val?' selected':'')+'>'+s+'</option>';}).join('')+'</select>';
+    else if(LONG.indexOf(h)>=0) f='<textarea data-h="'+esc(h)+'">'+esc(val)+'</textarea>';
+    else f='<input data-h="'+esc(h)+'" value="'+esc(val)+'"'+(ro?' readonly class="ro"':'')+'>';
+    return '<label>'+esc(h)+'</label>'+f;
+  }).join('');
+  $('pMeta').textContent=r['Updated On']?'Last updated '+r['Updated On']+' by '+r['Updated By']:'';
+  $('shade').classList.remove('hide'); $('panel').classList.remove('hide');
+}
+function closePanel(){ $('shade').classList.add('hide'); $('panel').classList.add('hide'); S.row=null; }
+function save(){
+  var r=S.row, ch={};
+  [].forEach.call($('pBody').querySelectorAll('[data-h]'),function(el){
+    var h=el.getAttribute('data-h'); if(el.readOnly) return;
+    if(el.value!==(r[h]||'')) ch[h]=el.value;
+  });
+  if(!Object.keys(ch).length){ toast('Nothing changed.'); return; }
+  $('pSave').disabled=true;
+  api('updateRow',[S.token,S.tab,r.ID,ch]).then(function(res){
+    Object.keys(ch).forEach(function(k){ r[k]=ch[k]; });
+    r['Updated By']=res.by; r['Updated On']=res.on;
+    toast('Saved ✓ '+r.ID); closePanel(); draw();
+  }).catch(function(e){ toast('Not saved: '+e.message); })
+    .then(function(){ $('pSave').disabled=false; });
+}
+
+/* ---------- CSV download of the filtered list ---------- */
+function csv(){
+  var hs=S.data[S.tab].headers, list=filtered(false);
+  var out=[hs].concat(list.map(function(r){return hs.map(function(h){return r[h];});}))
+    .map(function(a){return a.map(function(x){x=String(x==null?'':x);return /[",\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x;}).join(',');}).join('\r\n');
+  var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿'+out],{type:'text/csv'}));
+  a.download='RO-PACE '+S.tab+'.csv'; a.click();
+}
+
+/* ---------- Change PIN ---------- */
+function changePin(){
+  var o=prompt('Current PIN:'); if(!o) return;
+  var n=prompt('New PIN (4–8 digits):'); if(!n) return;
+  api('changePin',[S.token,o,n]).then(toast).catch(function(e){ toast(e.message); });
+}
+
+/* ---------- Wiring buttons ---------- */
+$('loginBtn').onclick=login;
+$('pin').onkeydown=function(e){ if(e.key==='Enter') login(); };
+$('outBtn').onclick=logout;
+$('pinBtn').onclick=changePin;
+$('refBtn').onclick=function(){ load().then(function(){ toast('Reloaded from sheet.'); }); };
+$('csvBtn').onclick=csv;
+$('moreBtn').onclick=function(){ S.shown+=PAGE; draw(); };
+['q','fArea','fEng'].forEach(function(i){ $(i).addEventListener(i==='q'?'input':'change',function(){ S.shown=PAGE; draw(); }); });
+document.querySelector('.tabs').onclick=function(e){
+  var b=e.target.closest('button'); if(!b) return;
+  [].forEach.call(this.children,function(x){x.classList.toggle('on',x===b);});
+  S.tab=b.getAttribute('data-tab'); S.status=''; S.shown=PAGE; $('q').value=''; fillFilters(); draw();
+};
+$('kpis').onclick=function(e){ var k=e.target.closest('.kpi'); if(!k) return; var s=k.getAttribute('data-s'); S.status=(S.status===s?'':s); S.shown=PAGE; draw(); };
+$('tb').onclick=function(e){ var tr=e.target.closest('tr[data-id]'); if(tr) openPanel(tr.getAttribute('data-id')); };
+$('pClose').onclick=closePanel; $('shade').onclick=closePanel; $('pSave').onclick=save;
+
+/* ---------- Start: reuse a saved login if there is one ---------- */
+try{
+  var saved=JSON.parse(localStorage.getItem('ropace')||'null');
+  $('email').value=localStorage.getItem('ropace_email')||'';
+  if(saved&&saved.token){ S.token=saved.token; S.user=saved; start(); }
+}catch(_){}
+</script>
+</body>
+</html>
