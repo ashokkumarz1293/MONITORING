@@ -234,7 +234,7 @@ function draw(){
   $('kpis').innerHTML=tiles.map(function(t){
     return '<div class="kpi'+(S.status===t[0]?' on':'')+'" data-s="'+esc(t[0])+'" style="border-top-color:'+t[3]+'"><div class="v">'+t[2]+'</div><div class="l">'+esc(t[1])+'</div></div>';}).join('');
   // Table
-  $('th').innerHTML='<tr>'+v.cols.map(function(h,i){ return '<th class="'+(i>1&&i<v.cols.length-1?'wide':'')+'">'+esc(h)+'</th>'; }).join('')+'</tr>';
+  $('th').innerHTML='<tr>'+v.cols.map(function(h,i){ return '<th class="'+(i>1&&i<v.cols.length-2?'wide':'')+'">'+esc(h)+'</th>'; }).join('')+'</tr>';
   $('tb').innerHTML=list.slice(0,S.shown).map(function(r){
     return '<tr data-id="'+esc(r.ID)+'">'+v.cols.map(function(h,i){
       if(h==='Status') return '<td>'+chip(r.Status)+'</td>';
