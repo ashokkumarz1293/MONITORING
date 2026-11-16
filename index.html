@@ -14,6 +14,8 @@ header{background:var(--navy);color:#fff;padding:10px 16px;display:flex;align-it
 header .t{flex:1;line-height:1.2}
 header .t b{font-size:17px;display:block}
 header .t small{opacity:.85;font-size:12px}
+header .hlogo{height:38px;background:#fff;border-radius:6px;padding:2px 4px}
+#login .logo{display:block;height:110px;margin:0 auto 10px}
 header .brand{background:var(--orange);color:#fff;font-weight:bold;border-radius:6px;padding:6px 9px;font-size:13px;letter-spacing:.5px}
 header button{background:transparent;border:1px solid #ffffff66;color:#fff;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer}
 main{max-width:1150px;margin:0 auto;padding:12px 16px 60px}
@@ -70,6 +72,7 @@ td.k{font-weight:bold;color:var(--navy)}
 <body>
 <div id="loading" class="hide"></div>
 <header>
+  <img class="hlogo logo-img" alt="IndianOil">
   <span class="brand">RO-PACE</span>
   <div class="t"><b>Begusarai Divisional Office</b><small>Engineering Department</small></div>
   <span id="who" class="meta" style="color:#fff"></span>
@@ -80,6 +83,7 @@ td.k{font-weight:bold;color:var(--navy)}
 <main>
   <!-- LOGIN -->
   <div id="login" class="card">
+    <img class="logo logo-img" alt="IndianOil">
     <h2>Log in</h2>
     <div class="meta">Commissioning &amp; Modernisation site monitoring</div>
     <label>E-mail</label><input id="email" type="email" autocomplete="username">
@@ -124,6 +128,7 @@ td.k{font-weight:bold;color:var(--navy)}
 </div>
 <div id="toast" class="hide"></div>
 
+<script src="logo.js"></script>
 <script>
 /* =========================================================
    RO-PACE front end
@@ -131,6 +136,9 @@ td.k{font-weight:bold;color:var(--navy)}
    2. api(fn, args) sends {"fn":..., "args":[...]} to it.
    3. Everything else just draws the screen.
    ========================================================= */
+// LOGO comes from logo.js (loaded just above this script).
+if (typeof LOGO !== 'undefined') [].forEach.call(document.querySelectorAll('.logo-img'),function(i){ i.src=LOGO; });
+
 var API_URL = 'https://script.google.com/macros/s/AKfycbzRgroBvrZ9NMJOOQbwk9tg_2iraPgOZLtRPAIbf0JwoGzi8rzo8ue5X7vM0fAWlok/exec';
 
 // What each tab shows. "cols" = list columns; "area"/"eng" = filter columns.
